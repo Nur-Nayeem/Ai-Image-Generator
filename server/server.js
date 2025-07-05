@@ -31,7 +31,7 @@ cloudinary.config({
 
 // Realtime connection log
 io.on("connection", (socket) => {
-  console.log("📡 Realtime client connected");
+  console.log(" Realtime client connected");
 });
 
 app.post("/generate-image", async (req, res) => {
