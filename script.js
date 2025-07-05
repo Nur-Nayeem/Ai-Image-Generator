@@ -16,7 +16,7 @@ const gallery = document.querySelector(".gallery");
 // Load images from server and render
 async function loadImages() {
   try {
-    const res = await fetch("http://localhost:3000/list-images");
+    const res = await fetch("https://ai-image-generator-sandy-gamma.vercel.app/list-images");
     const data = await res.json();
     images = data.images || [];
     currentPage = 1;
