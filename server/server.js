@@ -105,5 +105,5 @@ app.get("/list-images", async (req, res) => {
 });
 
 httpServer.listen(3000, () => {
-  console.log("✅ Server running at http://localhost:3000");
+  console.log(" Server running at http://localhost:3000");
 });
