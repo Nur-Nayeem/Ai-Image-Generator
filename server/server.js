@@ -34,6 +34,10 @@ io.on("connection", (socket) => {
   console.log(" Realtime client connected");
 });
 
+app.get('/', (req, res) => {
+  res.send('Hello from my Node.js server!');
+});
+
 app.post("/generate-image", async (req, res) => {
   const { prompt } = req.body;
   if (!prompt) return res.status(400).json({ error: "No prompt provided" });
