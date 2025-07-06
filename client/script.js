@@ -16,7 +16,7 @@ const gallery = document.querySelector(".gallery");
 // Load images from server and render
 async function loadImages() {
   try {
-    const res = await fetch("http://localhost:3000/list-images");
+    const res = await fetch("https://deploy-ai-image-gen-server.onrender.com/list-images");
     const data = await res.json();
     images = data.images || [];
     currentPage = 1;
@@ -133,7 +133,7 @@ form.addEventListener("submit", async (e) => {
   imageLoader.style.display = "flex";
 
   try {
-    const response = await fetch("http://localhost:3000/generate-image", {
+    const response = await fetch("https://deploy-ai-image-gen-server.onrender.com/generate-image", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -177,7 +177,7 @@ publishBtn.addEventListener("click", async () => {
   publishBtn.disabled = true;
 
   try {
-    const response = await fetch("http://localhost:3000/publish-image", {
+    const response = await fetch("https://deploy-ai-image-gen-server.onrender.com/publish-image", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
