@@ -4,7 +4,7 @@ import cors from "cors";
 import { GoogleGenAI, Modality } from "@google/genai";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from 'cloudinary';
-import db from '../db.js';
+import db from './db.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
