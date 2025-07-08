@@ -4,7 +4,7 @@ import cors from "cors";
 import { GoogleGenAI, Modality } from "@google/genai";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from 'cloudinary';
-import db from './db.js';
+import { connectDB, Image } from './db.js'; // Import connectDB and Image model
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
@@ -15,6 +15,9 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*" }
 });
+
+// Connect to MongoDB Atlas
+connectDB();
 
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -67,10 +70,14 @@ app.post("/generate-image", async (req, res) => {
 });
 
 app.post("/publish-image", async (req, res) => {
-  const { base64Image } = req.body;
+  const { base64Image, prompt } = req.body; // Destructure prompt from req.body
 
   if (!base64Image) {
     return res.status(400).json({ error: "No image provided" });
+  }
+  // Add validation for prompt as well, if it's required
+  if (!prompt) {
+    return res.status(400).json({ error: "No prompt provided for publishing" });
   }
 
   try {
@@ -78,28 +85,28 @@ app.post("/publish-image", async (req, res) => {
       folder: "gemini-images",
     });
 
-    // Store in local DB
-    await db.read();
-    db.data.images ||= [];
-    db.data.images.unshift(result.secure_url); // push to top
-    await db.write();
+    // Store in MongoDB Atlas, now including the prompt
+    const newImage = new Image({ url: result.secure_url, prompt: prompt });
+    await newImage.save();
 
     // Realtime update
-    io.emit("new-image", result.secure_url);
+    io.emit("new-image", { url: result.secure_url, prompt: prompt }); // Emit prompt with new image
 
-    res.json({ url: result.secure_url });
+    res.json({ url: result.secure_url, prompt: prompt });
   } catch (error) {
-    console.error("Cloudinary upload failed:", error);
+    console.error("Cloudinary upload or MongoDB save failed:", error);
     res.status(500).json({ error: "Upload failed" });
   }
 });
 
 app.get("/list-images", async (req, res) => {
   try {
-    await db.read();
-    res.json({ images: db.data.images || [] });
+    // Fetch images from MongoDB Atlas, sorted by creation date (newest first)
+    // We now fetch both url and prompt
+    const images = await Image.find().sort({ createdAt: -1 }).select('url prompt'); // Select specific fields
+    res.json({ images: images }); // Return the full image objects (url and prompt)
   } catch (err) {
-    console.error("Error listing images:", err);
+    console.error("Error listing images from MongoDB:", err);
     res.status(500).json({ error: "Failed to load images" });
   }
 });
